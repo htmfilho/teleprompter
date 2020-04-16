@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -27,9 +28,9 @@ func main() {
 		}
 
 		println(getText(string(line)))
-		println()
+		duration := getDuration(getTimeTag(string(line)))
 
-		time.Sleep(time.Second)
+		time.Sleep(duration)
 	}
 }
 
@@ -40,10 +41,13 @@ func getTimestamp(timeTag string) string {
 	return timestamp
 }
 
-func getDuration(timeTag string) string {
+func getDuration(timeTag string) time.Duration {
 	timeRegex := regexp.MustCompile(`\s[0-5][0-9],[0-9]{3}`)
 	timestamp := timeRegex.FindString(timeTag)
-	return strings.TrimLeft(timestamp, " ")
+	strDuration := strings.TrimLeft(timestamp, " ")
+	seconds, _ := strconv.ParseInt(strDuration[:strings.Index(strDuration, ",")], 10, 64)
+	milliseconds, _ := strconv.ParseInt(strDuration[strings.Index(strDuration, ",")+1:], 10, 64)
+	return (time.Duration(milliseconds) * time.Millisecond) + (time.Duration(seconds) * time.Second)
 }
 
 func getTimeTag(line string) string {
