@@ -3,11 +3,11 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -20,34 +20,43 @@ func main() {
 
 	reader := bytes.NewReader(script)
 	lines := bufio.NewReader(reader)
-
+	timer := time.Duration(0)
+	lineDuration := time.Duration(0)
 	for {
 		line, _, err := lines.ReadLine()
 		if err == io.EOF {
 			break
 		}
 
-		println(getText(string(line)))
-		duration := getDuration(getTimeTag(string(line)))
+		currentTimer := getTimestamp(getTimeTag(string(line)))
+		duration := currentTimer - timer - lineDuration
+		timer = currentTimer
 
 		time.Sleep(duration)
+
+		log.Println(getText(string(line)))
+		fmt.Println()
+
+		lineDuration = getDuration(getTimeTag(string(line)))
+
+		time.Sleep(lineDuration)
 	}
 }
 
 // Regex syntax: https://github.com/google/re2/wiki/Syntax
-func getTimestamp(timeTag string) string {
-	timeRegex := regexp.MustCompile(`[0-9]{2}:[0-5][0-9]:[0-5][0-9],[0-9]{3}`)
+func getTimestamp(timeTag string) time.Duration {
+	timeRegex := regexp.MustCompile(`[0-9]{2}h[0-5][0-9]m[0-5][0-9]s[0-9]{3}ms`)
 	timestamp := timeRegex.FindString(timeTag)
-	return timestamp
+	duration, _ := time.ParseDuration(timestamp)
+	return duration
 }
 
 func getDuration(timeTag string) time.Duration {
-	timeRegex := regexp.MustCompile(`\s[0-5][0-9],[0-9]{3}`)
+	timeRegex := regexp.MustCompile(`\s[0-5][0-9]s[0-9]{3}ms`)
 	timestamp := timeRegex.FindString(timeTag)
 	strDuration := strings.TrimLeft(timestamp, " ")
-	seconds, _ := strconv.ParseInt(strDuration[:strings.Index(strDuration, ",")], 10, 64)
-	milliseconds, _ := strconv.ParseInt(strDuration[strings.Index(strDuration, ",")+1:], 10, 64)
-	return (time.Duration(milliseconds) * time.Millisecond) + (time.Duration(seconds) * time.Second)
+	duration, _ := time.ParseDuration(strDuration)
+	return duration
 }
 
 func getTimeTag(line string) string {
