@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,8 +13,12 @@ import (
 	"time"
 )
 
+var scriptFile = flag.String("script", "./example.txt", "Path to the script file")
+
 func main() {
-	script, err := ioutil.ReadFile("./script.txt")
+	flag.Parse()
+
+	script, err := ioutil.ReadFile(*scriptFile)
 	if err != nil {
 		log.Printf("error loading the script %v", err)
 	}
