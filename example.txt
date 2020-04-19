@@ -1,0 +1,3 @@
+[[00h00m10s000ms 06s000ms]] Hi! My name is Hildeberto Mendonca. I'm a software engineer and I work and live in Toronto, Canada.
+[[00h00m20s000ms 06s000ms]] This is my new YouTube channel where I intend to talk about my two passions in live: running and coding.
+[[00h00m30s000ms 00s500ms]] These passions inspired me to name my channel "Running Code".
